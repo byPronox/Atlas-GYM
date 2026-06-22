@@ -273,7 +273,7 @@ Este pipeline cumple con los requisitos porque:
 
 ## 7. Resultado de la ejecucion en Azure DevOps
 
-Ejecucion exitosa:
+Ejecucion manual exitosa:
 
 ```text
 Build: 20260622.4
@@ -281,6 +281,15 @@ Estado: completed
 Resultado: succeeded
 Commit: b617cf187e081b4c32e061bcc9e319f9870b806e
 URL: https://dev.azure.com/jhoelsuarez/cd53ca8a-8957-448e-b03f-942b2a7957fb/_build/results?buildId=4
+```
+
+Despues de actualizar la documentacion, el trigger de la rama `main` genero otra ejecucion automatica exitosa:
+
+```text
+Build: 20260622.5
+Estado: completed
+Resultado: succeeded
+Commit: a9c82bc40474659ea4d20478c36007c44fbb7c26
 ```
 
 Resultados publicados:
@@ -300,7 +309,7 @@ Para completar el entregable, se deben insertar capturas de:
 2. Repositorio `Atlas-GYM` cargado en Azure Repos.
 3. Archivo `azure-pipelines.yml`.
 4. Agente local `AtlasGym-PC` en el pool `Default`.
-5. Ejecucion del pipeline `20260622.4` con resultado `succeeded`.
+5. Ejecucion del pipeline `20260622.4` o `20260622.5` con resultado `succeeded`.
 6. Log del job `Compilar y ejecutar pruebas JUnit`.
 7. Seccion **Tests** con `AtletaTest` y `MembresiaTest` aprobadas.
 
