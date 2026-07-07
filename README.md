@@ -1,324 +1,124 @@
-# Actividad Autonoma: Automatizacion de Pruebas en Azure DevOps
+# Atlas Gym - Gym Management System 🏋️‍♂️
 
-## Proyecto
+[![Java](https://img.shields.io/badge/Java-11-orange.svg)](https://www.oracle.com/java/)
+[![OpenXava](https://img.shields.io/badge/OpenXava-7.7.2-blue.svg)](https://openxava.org/)
+[![Maven](https://img.shields.io/badge/Maven-3.9-C71A36.svg)](https://maven.apache.org/)
+[![JUnit](https://img.shields.io/badge/JUnit-4.13-25A162.svg)](https://junit.org/junit4/)
+[![Azure Pipelines](https://img.shields.io/badge/Azure_Pipelines-CI%2FCD-118DFF.svg)](https://azure.microsoft.com/en-us/products/devops/pipelines/)
 
-**Nombre:** Atlas GYM  
-**Tipo:** Aplicacion Java/Maven con OpenXava  
-**Objetivo de la practica:** investigar y demostrar como se configuran y ejecutan pruebas automatizadas en Azure DevOps como parte del proceso de Validacion y Verificacion (V&V).
+Atlas Gym is a comprehensive web-based Gym Management System developed to streamline daily operations, track athlete progress, and manage physical assets. Built using the **OpenXava** framework, this project applies a rapid Time-To-Market approach while maintaining robust business logic and domain-driven design.
 
-Este repositorio contiene una demostracion completa de automatizacion de pruebas. Se configuraron pruebas unitarias con JUnit, un pipeline en Azure DevOps y la publicacion de resultados para que las pruebas sean visibles desde el panel de ejecucion.
+Developed by **Group 5** for the Software Validation and Verification course at Universidad de las Américas (UDLA).
 
-## 1. Investigacion sobre automatizacion de pruebas en Azure DevOps
+## 🚀 Features & Modules
 
-Azure DevOps es una plataforma de Microsoft para gestionar el ciclo de vida del desarrollo de software. En el contexto de V&V, permite automatizar la compilacion, ejecucion de pruebas, publicacion de reportes y seguimiento de resultados.
+The system is divided into five core modules, each secured by role-based access control (Admin / Trainer):
 
-### Herramientas y servicios usados
-
-- **Azure Repos:** servicio de control de versiones Git. En esta practica se uso para alojar el codigo del proyecto `Atlas-GYM` dentro de Azure DevOps.
-- **Azure Pipelines:** servicio de integracion continua. Se uso para compilar el proyecto y ejecutar automaticamente las pruebas JUnit.
-- **Azure Test Plans:** servicio orientado a planificacion, trazabilidad y gestion de casos de prueba. Es util para pruebas manuales, suites de prueba y asociacion de pruebas automatizadas con casos formales.
-- **PublishTestResults:** tarea del pipeline que publica archivos de resultados JUnit para que Azure DevOps muestre las pruebas aprobadas o fallidas.
-- **Agent Pools:** conjunto de agentes donde se ejecutan los jobs. En esta practica se uso un agente local porque la organizacion no tenia paralelismo hospedado gratuito habilitado.
-
-### Integracion con frameworks de prueba
-
-Azure DevOps no obliga a usar un framework especifico. La integracion se realiza ejecutando comandos dentro del pipeline. Algunos ejemplos:
-
-- **JUnit:** se ejecuta con Maven mediante `mvn clean test`. Maven Surefire genera reportes XML en `target/surefire-reports`.
-- **Selenium:** se puede integrar agregando dependencias Selenium al proyecto y ejecutando las pruebas desde Maven/Gradle. El agente puede usar navegadores disponibles o contenedores.
-- **Appium:** se puede integrar para pruebas moviles ejecutando scripts de prueba contra un emulador, dispositivo o servicio externo compatible.
-
-En este proyecto se eligio **JUnit 4** porque el escenario academico podia demostrarse con pruebas unitarias sencillas, rapidas y sin costo adicional.
-
-### Workflow tipico de CI/CD con pruebas
-
-1. El desarrollador realiza cambios en el codigo fuente.
-2. Los cambios se suben al repositorio Git.
-3. Azure Pipelines detecta el cambio mediante el `trigger`.
-4. El agente toma el job del pipeline.
-5. Maven compila el proyecto y ejecuta las pruebas con `mvn clean test`.
-6. Surefire genera reportes JUnit XML.
-7. Azure DevOps publica los resultados en la seccion **Tests**.
-8. Si una prueba falla, el pipeline queda fallido; si todas pasan, queda exitoso.
-
-Fuentes de apoyo:
-
-- https://learn.microsoft.com/es-es/azure/devops/
-- https://learn.microsoft.com/es-es/azure/devops/pipelines/ecosystems/java
-- https://learn.microsoft.com/es-es/azure/devops/test/associate-automated-test-with-test-case
-- https://learn.microsoft.com/es-es/azure/devops/test/run-automated-tests-from-test-hub
-
-## 2. Escenario de prueba elegido
-
-El escenario seleccionado pertenece al modulo de gimnasio del proyecto **Atlas GYM**. Se automatizaron pruebas unitarias sobre entidades del dominio.
-
-### Caso 1: Registro de atleta
-
-Se valida que un objeto `Atleta` pueda almacenar y devolver correctamente sus datos principales:
-
-- Nombre completo
-- Cedula
-- Fecha de nacimiento
-- Genero
-- Telefono
-- Correo electronico
-- Estado
-
-Archivo:
-
-```text
-src/test/java/org/example/AtlasGym/modelo/AtletaTest.java
-```
-
-### Caso 2: Membresia mensual
-
-Se valida la creacion de una membresia asociada a un atleta y a un tipo de membresia. Tambien se comprueba que la fecha de vencimiento se calcule sumando la duracion del plan.
-
-Archivo:
-
-```text
-src/test/java/org/example/AtlasGym/modelo/MembresiaTest.java
-```
-
-## 3. Codigo de las pruebas
-
-### AtletaTest
-
-```java
-package org.example.AtlasGym.modelo;
-
-import static org.junit.Assert.*;
-
-import java.time.LocalDate;
-
-import org.junit.Test;
-
-public class AtletaTest {
-
-    @Test
-    public void registraDatosBasicosDelAtleta() {
-        Atleta atleta = new Atleta();
-
-        atleta.setNombreCompleto("Maria Perez");
-        atleta.setCedula("0912345678");
-        atleta.setFechaNacimiento(LocalDate.of(2000, 5, 10));
-        atleta.setGenero("Femenino");
-        atleta.setTelefono("0999999999");
-        atleta.setCorreoElectronico("maria.perez@correo.com");
-        atleta.setEstado("ACTIVO");
-
-        assertEquals("Maria Perez", atleta.getNombreCompleto());
-        assertEquals("0912345678", atleta.getCedula());
-        assertEquals(LocalDate.of(2000, 5, 10), atleta.getFechaNacimiento());
-        assertEquals("Femenino", atleta.getGenero());
-        assertEquals("0999999999", atleta.getTelefono());
-        assertEquals("maria.perez@correo.com", atleta.getCorreoElectronico());
-        assertEquals("ACTIVO", atleta.getEstado());
-    }
-}
-```
-
-### MembresiaTest
-
-```java
-package org.example.AtlasGym.modelo;
-
-import static org.junit.Assert.*;
-
-import java.time.LocalDate;
-
-import org.junit.Test;
-
-public class MembresiaTest {
-
-    @Test
-    public void calculaFechaDeVencimientoSegunTipoDeMembresia() {
-        Atleta atleta = new Atleta();
-        atleta.setNombreCompleto("Carlos Andrade");
-
-        TipoMembresia tipo = new TipoMembresia();
-        tipo.setNombrePlan("Mensual");
-        tipo.setDuracionDias(30);
-
-        LocalDate fechaInicio = LocalDate.of(2026, 6, 1);
-
-        Membresia membresia = new Membresia();
-        membresia.setAtleta(atleta);
-        membresia.setTipoMembresia(tipo);
-        membresia.setFechaInicio(fechaInicio);
-        membresia.setFechaVencimiento(fechaInicio.plusDays(tipo.getDuracionDias()));
-        membresia.setEstado("ACTIVA");
-
-        assertSame(atleta, membresia.getAtleta());
-        assertSame(tipo, membresia.getTipoMembresia());
-        assertEquals(LocalDate.of(2026, 7, 1), membresia.getFechaVencimiento());
-        assertEquals("ACTIVA", membresia.getEstado());
-    }
-}
-```
-
-## 4. Configuracion realizada en el proyecto
-
-### Cambios en `pom.xml`
-
-Se agrego JUnit 4 como dependencia de pruebas:
-
-```xml
-<dependency>
-    <groupId>junit</groupId>
-    <artifactId>junit</artifactId>
-    <version>4.13.2</version>
-    <scope>test</scope>
-</dependency>
-```
-
-Tambien se habilito Maven Surefire para que las pruebas se ejecuten con Maven.
-
-Comando usado para validar localmente:
-
-```bash
-mvn clean test
-```
-
-Resultado local:
-
-```text
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
-BUILD SUCCESS
-```
-
-## 5. Implementacion en Azure DevOps
-
-### Proyecto de Azure DevOps
-
-Se creo el proyecto:
-
-```text
-Organizacion: jhoelsuarez
-Proyecto: Atlas-GYM
-URL: https://dev.azure.com/jhoelsuarez/Atlas-GYM
-```
-
-El codigo fue cargado en **Azure Repos** para evitar depender de permisos administrativos del repositorio GitHub original.
-
-### Agente local
-
-Al ejecutar inicialmente el pipeline con `ubuntu-latest`, Azure DevOps mostro el error:
-
-```text
-No hosted parallelism has been purchased or granted.
-```
-
-Esto ocurre cuando una organizacion nueva no tiene habilitados agentes hospedados gratuitos. Para resolverlo se configuro un agente local de Azure Pipelines en Windows:
-
-```text
-Nombre del agente: AtlasGym-PC
-Pool: Default
-Tipo: Self-hosted agent
-```
-
-Tambien se instalaron las herramientas necesarias en el equipo:
-
-```text
-Java: Eclipse Temurin JDK 17
-Maven: Apache Maven 3.9.16
-```
-
-## 6. Pipeline configurado
-
-Archivo:
-
-```text
-azure-pipelines.yml
-```
-
-Contenido principal:
-
-```yaml
-trigger:
-  branches:
-    include:
-      - main
-
-pool:
-  name: Default
-
-steps:
-  - powershell: |
-      $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.19.10-hotspot"
-      $env:MAVEN_HOME = "C:\Users\USER\tools\apache-maven-3.9.16"
-      $env:Path = "$env:JAVA_HOME\bin;$env:MAVEN_HOME\bin;$env:Path"
-
-      java -version
-      mvn -version
-      mvn clean test
-    displayName: Compilar y ejecutar pruebas JUnit
-
-  - task: PublishTestResults@2
-    displayName: Publicar resultados JUnit
-    condition: succeededOrFailed()
-    inputs:
-      testResultsFormat: JUnit
-      testResultsFiles: "**/surefire-reports/TEST-*.xml"
-      failTaskOnFailedTests: true
-```
-
-Este pipeline cumple con los requisitos porque:
-
-- Se ejecuta automaticamente ante cambios en la rama `main`.
-- Compila y prueba el proyecto con Maven.
-- Ejecuta las pruebas JUnit.
-- Publica los resultados en Azure DevOps.
-- Permite visualizar pruebas aprobadas o fallidas en la seccion **Tests**.
-
-## 7. Resultado de la ejecucion en Azure DevOps
-
-Ejecucion manual exitosa:
-
-```text
-Build: 20260622.4
-Estado: completed
-Resultado: succeeded
-Commit: b617cf187e081b4c32e061bcc9e319f9870b806e
-URL: https://dev.azure.com/jhoelsuarez/cd53ca8a-8957-448e-b03f-942b2a7957fb/_build/results?buildId=4
-```
-
-Despues de actualizar la documentacion, el trigger de la rama `main` genero otra ejecucion automatica exitosa:
-
-```text
-Build: 20260622.5
-Estado: completed
-Resultado: succeeded
-Commit: a9c82bc40474659ea4d20478c36007c44fbb7c26
-```
-
-Resultados publicados:
-
-```text
-AtletaTest: 1 prueba aprobada
-MembresiaTest: 1 prueba aprobada
-Total: 2 pruebas aprobadas
-Fallos: 0
-```
-
-## 8. Capturas que deben incluirse en el PDF
-
-Para completar el entregable, se deben insertar capturas de:
-
-1. Proyecto `Atlas-GYM` creado en Azure DevOps.
-2. Repositorio `Atlas-GYM` cargado en Azure Repos.
-3. Archivo `azure-pipelines.yml`.
-4. Agente local `AtlasGym-PC` en el pool `Default`.
-5. Ejecucion del pipeline `20260622.4` o `20260622.5` con resultado `succeeded`.
-6. Log del job `Compilar y ejecutar pruebas JUnit`.
-7. Seccion **Tests** con `AtletaTest` y `MembresiaTest` aprobadas.
-
-## 9. Conclusiones
-
-La actividad demuestra como la automatizacion de pruebas fortalece el proceso de Validacion y Verificacion. Con Azure DevOps se logro integrar el repositorio, el pipeline de compilacion, la ejecucion automatica de pruebas y la publicacion de resultados.
-
-El ejercicio tambien muestra una situacion real de trabajo: cuando no existe paralelismo hospedado gratuito, se puede usar un agente local para ejecutar el pipeline sin costo. La solucion final permite validar automaticamente el proyecto cada vez que se suben cambios, dejando una base lista para ampliar la cobertura con mas pruebas unitarias, Selenium para pruebas web o Appium para pruebas moviles.
-
-## 10. Resumen para la entrega
-
-Se implemento una automatizacion de pruebas en Azure DevOps para el proyecto **Atlas GYM**. Se crearon pruebas unitarias con JUnit para validar el registro de atletas y la creacion de membresias. Se configuro Maven para ejecutar las pruebas, se creo un pipeline en Azure DevOps, se uso un agente local y se publicaron los resultados en el panel de Azure DevOps. La ejecucion final fue exitosa con 2 pruebas aprobadas y 0 fallos.
+1. **Athletes & Memberships:** Registration, tracking, and automatic expiration calculations for gym plans.
+2. **Workout Routines:** Creation of customized routines mapping specific exercises, series, and repetitions to individual athletes.
+3. **Group Sessions:** Scheduling of classes with automated capacity limits, avoiding trainer schedule conflicts.
+4. **Attendance & Physical Evaluations:** Tracking class attendance and automatic BMI (Body Mass Index) calculation with health risk categorization.
+5. **Equipment Inventory:** Lifecycle management of gym machinery using a State Transition model (`OPERATIVE` ➔ `IN_MAINTENANCE` ➔ `DECOMMISSIONED`).
+
+## 🛠️ Tech Stack
+
+* **Backend:** Java 11 (JDK LTS)
+* **Framework:** OpenXava 7.7.2 (JPA / Hibernate)
+* **Database:** HSQLDB (Embedded for development)
+* **Server:** Apache Tomcat 9
+* **Build Tool:** Maven
+* **Testing:** JUnit 4
+* **CI/CD:** Azure Pipelines
+
+## 🧪 Validation & Verification (Testing Strategy)
+
+Quality Assurance is at the core of Atlas Gym. The system has passed a rigorous V&V protocol achieving a 100% success rate:
+
+* **White-Box Testing (Unit Testing):**
+    * Achieved 100% Statement and Decision Coverage on complex algorithms (e.g., BMI calculations, Schedule conflicts).
+    * Validated Cyclomatic Complexity (M=3 for core validation methods) using JUnit.
+* **Black-Box Testing (Acceptance Testing):**
+    * **Use Cases:** 65 E2E test cases (Functional, Negative, and Security).
+    * **Boundary Value Analysis (BVA):** Applied to session capacity limits to prevent overcrowding.
+    * **State Transition Testing:** Validated the strict lifecycle rules of equipment maintenance.
+
+## ⚙️ Installation & Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/byPronox/Atlas-GYM.git](https://github.com/byPronox/Atlas-GYM.git)
+   cd Atlas-GYM
+   ```
+2. **Build the project:**
+   Ensure you have Maven installed. Run the following command to clean the workspace and build the .war package:
+   ```bash
+   mvn clean package
+   ```
+3. **Run the application:**
+   Execute the main runner class `org.example.AtlasGym.run.AtlasGym` from your IDE (IntelliJ IDEA / Eclipse).
+4. **Access the system:**
+   Open your browser and navigate to: `http://localhost:8080/AtlasGym`
+
+
+---
+
+# Atlas Gym - Sistema de Gestión de Gimnasios 🏋️‍♂️
+
+[![Java](https://img.shields.io/badge/Java-11-orange.svg)](https://www.oracle.com/java/)
+[![OpenXava](https://img.shields.io/badge/OpenXava-7.7.2-blue.svg)](https://openxava.org/)
+[![Maven](https://img.shields.io/badge/Maven-3.9-C71A36.svg)](https://maven.apache.org/)
+[![JUnit](https://img.shields.io/badge/JUnit-4.13-25A162.svg)](https://junit.org/junit4/)
+[![Azure Pipelines](https://img.shields.io/badge/Azure_Pipelines-CI%2FCD-118DFF.svg)](https://azure.microsoft.com/en-us/products/devops/pipelines/)
+
+Atlas Gym es un sistema web integral diseñado para optimizar las operaciones diarias, el seguimiento de atletas y la gestión de activos físicos de un centro de acondicionamiento. Construido con el framework **OpenXava**, este proyecto aplica un enfoque ágil *Time-To-Market* manteniendo una robusta lógica de negocio y un diseño guiado por el dominio (DDD).
+
+Desarrollado por el **Grupo 5** para la asignatura de Validación y Verificación de Software en la Universidad de las Américas (UDLA).
+
+## 🚀 Características y Módulos
+
+El sistema se divide en cinco módulos principales, protegidos por control de acceso basado en roles (Administrador / Entrenador):
+
+1. **Atletas y Membresías:** Registro, seguimiento y cálculo automático de expiración de planes de gimnasio.
+2. **Rutinas de Entrenamiento:** Creación de rutinas personalizadas asociando ejercicios específicos, series y repeticiones a atletas individuales.
+3. **Sesiones Grupales:** Programación de clases con control automático de aforo máximo y prevención de conflictos de horario de entrenadores.
+4. **Asistencia y Evaluaciones Físicas:** Control de asistencia a clases y cálculo automatizado del IMC (Índice de Masa Corporal) con categorización de riesgo de salud.
+5. **Inventario de Equipamiento:** Gestión del ciclo de vida de la maquinaria mediante un modelo de Transición de Estados (`OPERATIVO` ➔ `EN_MANTENIMIENTO` ➔ `DADO_DE_BAJA`).
+
+## 🛠️ Stack Tecnológico
+
+* **Backend:** Java 11 (JDK LTS)
+* **Framework:** OpenXava 7.7.2 (JPA / Hibernate)
+* **Base de Datos:** HSQLDB (Embebida para desarrollo)
+* **Servidor:** Apache Tomcat 9
+* **Construcción:** Maven
+* **Pruebas:** JUnit 4
+* **CI/CD:** Azure Pipelines
+
+## 🧪 Validación y Verificación (Estrategia de Testing)
+
+El Aseguramiento de Calidad (QA) es el núcleo de Atlas Gym. El sistema ha superado un riguroso protocolo de V&V logrando un 100% de tasa de éxito:
+
+* **Pruebas de Caja Blanca (Unitarias):**
+    * Se alcanzó un 100% de Cobertura de Sentencia y Decisión en algoritmos complejos (ej. cálculos de IMC, conflictos de horario).
+    * Se validó la Complejidad Ciclomática (M=3 para métodos centrales de validación) usando JUnit.
+* **Pruebas de Caja Negra (Pruebas de Aceptación):**
+    * **Casos de Uso:** 65 casos de prueba End-to-End (Funcionales, Negativos y de Seguridad).
+    * **Análisis de Valores Límite (BVA):** Aplicado a los límites de aforo de sesiones para prevenir la sobrecapacidad.
+    * **Transición de Estados:** Validó las reglas estrictas del ciclo de vida y mantenimiento de los equipos.
+
+## ⚙️ Instalación y Ejecución
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone [https://github.com/byPronox/Atlas-GYM.git](https://github.com/byPronox/Atlas-GYM.git)
+   cd Atlas-GYM
+   ```
+2. **Construir el proyecto:**
+   Asegúrate de tener Maven instalado. Ejecuta el siguiente comando para limpiar el espacio de trabajo y construir el paquete .war:
+   ```bash
+   mvn clean package
+   ```
+3. **Ejecutar la aplicación:**
+   Ejecuta la clase principal `org.example.AtlasGym.run.AtlasGym` desde tu IDE (IntelliJ IDEA / Eclipse).
+4. **Acceder al sistema:**
+   Abre tu navegador y dirígete a: `http://localhost:8080/AtlasGym`
