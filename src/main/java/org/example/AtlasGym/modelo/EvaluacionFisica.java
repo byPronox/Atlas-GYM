@@ -50,32 +50,29 @@ public class EvaluacionFisica {
     // ==========================================
     // ALGORITMO DE LÓGICA DE NEGOCIO (CAJA BLANCA)
     // ==========================================
+
     @PrePersist
     @PreUpdate
     public void calcularIMCYRiesgo() {
-        // Validamos que los datos no sean nulos y que la estatura sea mayor a 0
         if (peso != null && estaturaMetros != null && estaturaMetros.compareTo(BigDecimal.ZERO) > 0) {
 
-            // 1. Cálculo matemático: IMC = peso / (estatura * estatura)
             BigDecimal estaturaCuadrado = estaturaMetros.multiply(estaturaMetros);
             this.imc = peso.divide(estaturaCuadrado, 2, RoundingMode.HALF_UP);
 
             double imcCalculado = this.imc.doubleValue();
 
-            // 2. Lógica de ramificación (Caja Blanca)
             if (imcCalculado < 18.5) {
                 this.nivelRiesgo = "BAJO PESO - Requiere plan de hipertrofia";
             } else if (imcCalculado >= 18.5 && imcCalculado < 24.9) {
                 this.nivelRiesgo = "PESO NORMAL - Mantener estado";
             } else if (imcCalculado >= 25.0 && imcCalculado < 29.9) {
-                this.nivelRiesgo = "SOBREPESO - Requiere déficit calórico";
+                this.nivelRiesgo = "SOBREPESO - Requiere deficit calorico";
             } else {
-                this.nivelRiesgo = "OBESIDAD - Derivar a deportólogo";
+                this.nivelRiesgo = "OBESIDAD - Derivar a deportologo";
             }
         } else {
-            // Camino alternativo en caso de error o división por cero
             this.imc = BigDecimal.ZERO;
-            this.nivelRiesgo = "DATOS INVÁLIDOS (Revise estatura/peso)";
+            this.nivelRiesgo = "DATOS INVALIDOS (Revise estatura/peso)";
         }
     }
 

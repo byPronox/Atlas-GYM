@@ -42,6 +42,15 @@ public class SesionGrupal {
     @Required
     private Rutina rutina;
 
+    public boolean tieneConflictoHorario(SesionGrupal otraSesion) {
+        // Verifica si es el mismo día y el mismo entrenador
+        if (this.fecha.equals(otraSesion.getFecha()) && this.entrenador.equals(otraSesion.getEntrenador())) {
+            // Verifica si los rangos de tiempo se solapan
+            return this.horaInicio.isBefore(otraSesion.getHoraFin()) && this.horaFin.isAfter(otraSesion.getHoraInicio());
+        }
+        return false;
+    }
+
     // --- GETTERS Y SETTERS ---
     public Long getIdSesion() { return idSesion; }
     public void setIdSesion(Long idSesion) { this.idSesion = idSesion; }

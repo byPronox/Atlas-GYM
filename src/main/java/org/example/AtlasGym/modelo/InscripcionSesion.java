@@ -29,6 +29,18 @@ public class InscripcionSesion {
     @Column(length = 15)
     private String estado;
 
+    public void procesarInscripcion(boolean atletaTieneMembresiaActiva, int cantidadInscritosActuales) {
+        if (!atletaTieneMembresiaActiva) {
+            throw new IllegalStateException("El atleta no tiene membresía activa");
+        }
+        if (this.sesion != null && cantidadInscritosActuales >= this.sesion.getCupoMaximo()) {
+            throw new IllegalStateException("La sesión ha alcanzado su cupo máximo");
+        }
+
+        this.estado = "CONFIRMADA";
+        this.fechaInscripcion = java.time.LocalDateTime.now();
+    }
+
     // --- GETTERS Y SETTERS ---
     public Long getIdInscripcion() { return idInscripcion; }
     public void setIdInscripcion(Long idInscripcion) { this.idInscripcion = idInscripcion; }

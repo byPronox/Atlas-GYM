@@ -23,6 +23,17 @@ public class Asistencia {
     @Column(precision = 5, scale = 2)
     private BigDecimal porcentajeAsistencia;
 
+    @PreUpdate
+    public void validarModificacionAsistencia() {
+        if (this.inscripcion != null && this.inscripcion.getSesion() != null) {
+            java.time.LocalDate fechaSesion = this.inscripcion.getSesion().getFecha();
+            // Si la fecha de la sesión es anterior a hoy, se bloquea la modificación
+            if (fechaSesion.isBefore(java.time.LocalDate.now())) {
+                throw new IllegalStateException("El periodo de modificación ha expirado");
+            }
+        }
+    }
+
     // --- GETTERS Y SETTERS ---
     public Long getIdAsistencia() { return idAsistencia; }
     public void setIdAsistencia(Long idAsistencia) { this.idAsistencia = idAsistencia; }

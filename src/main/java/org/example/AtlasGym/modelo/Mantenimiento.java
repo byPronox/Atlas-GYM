@@ -42,6 +42,35 @@ public class Mantenimiento {
     @Column(length = 10)
     private String estado; // PENDIENTE, EJECUTADO, VENCIDO
 
+    // ==========================================
+    // LÓGICA DE NEGOCIO (CAJA BLANCA)
+    // ==========================================
+
+    @PrePersist
+    public void validarProgramacion() {
+        if (this.equipamiento != null && "DADO_DE_BAJA".equals(this.equipamiento.getEstado())) {
+            throw new IllegalStateException("No se puede programar mantenimiento a un ítem dado de baja");
+        }
+    }
+
+    public void registrarEjecucion(java.time.LocalDate fecha, String observaciones) {
+        this.estado = "EJECUTADO";
+        this.fechaRealizada = fecha;
+        this.observacionesResultado = observaciones;
+
+        if (this.equipamiento != null) {
+            this.equipamiento.setEstado("OPERATIVO");
+        }
+    }
+
+    @org.openxava.annotations.Depends("fechaProgramada, estado")
+    public boolean estaVencido() {
+        if ("PENDIENTE".equals(this.estado) && this.fechaProgramada != null) {
+            return this.fechaProgramada.isBefore(java.time.LocalDate.now());
+        }
+        return false;
+    }
+
     // --- GETTERS Y SETTERS ---
     public Long getIdMantenimiento() { return idMantenimiento; }
     public void setIdMantenimiento(Long idMantenimiento) { this.idMantenimiento = idMantenimiento; }

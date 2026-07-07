@@ -38,6 +38,16 @@ public class Equipamiento {
     @Column(length = 255)
     private String motivoBaja;
 
+
+    public void darDeBaja(java.time.LocalDate fecha, String motivo) {
+        if (motivo == null || motivo.trim().isEmpty()) {
+            throw new IllegalStateException("El motivo de baja es obligatorio");
+        }
+        this.estado = "DADO_DE_BAJA";
+        this.fechaBaja = fecha;
+        this.motivoBaja = motivo;
+    }
+
     // --- GETTERS Y SETTERS ---
     public Long getIdEquipamiento() { return idEquipamiento; }
     public void setIdEquipamiento(Long idEquipamiento) { this.idEquipamiento = idEquipamiento; }
